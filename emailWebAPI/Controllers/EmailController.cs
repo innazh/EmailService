@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using emailWebAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -30,11 +31,28 @@ namespace emailWebAPI.Controllers
         }
 
         [HttpPost]
-        [Route("PostEmail")]
+        [Route("/api/mails")]
         //POST /api/mails
-        public bool PostEmail(Email email)
+        public async Task<IActionResult> PostEmail(Email email)
         {
-            return false;
+            bool valid = false;
+            if (ModelState.IsValid)
+            {
+                email.Id = System.Guid.NewGuid();
+                valid = true;
+            }
+            //Add to the database and commit changes
+            _context.Add(email);
+            await _context.SaveChangesAsync();
+            //TODO: Send email
+            Console.WriteLine("POST REQUEST");
+            Console.WriteLine(email.Body);
+            Console.WriteLine(email.Id);
+            Console.WriteLine(email.Recipients);
+            Console.WriteLine(email.Subject);
+            Console.WriteLine(email.Created);
+
+            return Json(valid);
         }
 
 
