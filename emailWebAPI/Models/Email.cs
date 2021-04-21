@@ -21,7 +21,7 @@ namespace emailWebAPI.Models
 
         [Required]
         [MaxLength(1000)]
-        public string Recipients { get; set; }
+        public string[] Recipients { get; set; }
 
         [DataType(DataType.Date)]
         [Column(TypeName = "Date")]

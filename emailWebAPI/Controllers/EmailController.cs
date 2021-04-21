@@ -25,8 +25,7 @@ namespace emailWebAPI.Controllers
         // GET /api/mails
         public async Task<IActionResult> GetAllEmails()
         {
-            Console.WriteLine("my get");
-            //return "hi";//a list of all emails stored in the db
+            //a list of all emails stored in the db
             return Json(await _context.Email.ToListAsync());
         }
 
@@ -35,57 +34,25 @@ namespace emailWebAPI.Controllers
         //POST /api/mails
         public async Task<IActionResult> PostEmail(Email email)
         {
-            bool valid = false;
+            bool result = false;
+
             if (ModelState.IsValid)
             {
-                email.Id = System.Guid.NewGuid();
-                valid = true;
+                EmailService emailService = new EmailService();
+                result = emailService.SendEmail(email.Subject, email.Body, email.Recipients);
             }
+
+            //Populate model's fields
+            email.Id = System.Guid.NewGuid();
+            email.Created = DateTime.Now;
+            if (result) email.Result = "OK";
+            else email.Result = "Failed";
+
             //Add to the database and commit changes
             _context.Add(email);
             await _context.SaveChangesAsync();
-            //TODO: Send email
-            Console.WriteLine("POST REQUEST");
-            Console.WriteLine(email.Body);
-            Console.WriteLine(email.Id);
-            Console.WriteLine(email.Recipients);
-            Console.WriteLine(email.Subject);
-            Console.WriteLine(email.Created);
 
-            return Json(valid);
+            return Json(result);
         }
-
-
-        //// POST: Movies/Create
-        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        //// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(movie);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(movie);
-        //}
-
-        //// POST: Movies/Create
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(movie);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(movie);
-        //}
     }
 }
